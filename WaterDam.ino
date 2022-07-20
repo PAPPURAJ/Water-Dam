@@ -3,11 +3,11 @@
 
 
 
-#define FIREBASE_HOST "iot-based-water-dam-default-rtdb.firebaseio.com"  //Database link
-#define FIREBASE_AUTH "OEPj6svcFbYMBBpSicKP13FbjO8l5eGa0MCwumOg"  //Database secrate
+#define FIREBASE_HOST "water-dam-default-rtdb.firebaseio.com"  //Database link
+#define FIREBASE_AUTH "fVZnbBvbQ5oBcTYuVm2HWAn3onEsDUK3cTqkh2IN"  //Database secrate
 
-#define WIFI_SSID "PAPPURAJ"      //Router name
-#define WIFI_PASSWORD "5555555."  //Router password
+#define WIFI_SSID "WATER DAM"      //Router name
+#define WIFI_PASSWORD "12345678"  //Router password
 
 
 
@@ -19,32 +19,13 @@ FirebaseJson json;
 #define echoPin D7
 #define trigPin D6
 
-float distance = 0, lowerLimit = 300, upperLimit = 600, out;
+float distance = 0, lowerLimit = 300, upperLimit = 600, out;//mm
 
 
 
 void senW(String field, float value) {
   Firebase.setString(firebaseData, "/AnalogOutput/" + field, String(value) );
 
-}
-
-String senR(String field) {
-  if (Firebase.getString(loadData, "/AnalogInput/" + field)) {
-    return loadData.stringData();
-  }
-}
-
-//Sending data
-void loadW(String field, int value) {
-  Firebase.setString(firebaseData, "/Load/" + field, String(value) );
-
-}
-
-//Receiving data
-String loadR(String field) {
-  if (Firebase.getString(loadData, "/Load/" + field)) {
-    return loadData.stringData();
-  }
 }
 
 
@@ -99,10 +80,6 @@ void setup() {
   Serial.begin(9600);
   initFire();
 
-  loadW("Test", 1);
-
-  Serial.println("Load: " + loadR("Test"));
-  Serial.println("Sen: " + senR("Test"));
 
 
 }
@@ -135,11 +112,27 @@ void loop() {
   else if (out > 100)
     out = 100;
 
-  digitalWrite(D1, out < 10);
-  digitalWrite(D5, out > 90);
+
+  if (100-out < 20) {
+    digitalWrite(D5, 1);
+    delay(200);
+    digitalWrite(D5, 0);
+    delay(200);
+    digitalWrite(D5, 1);
+    delay(200);
+    digitalWrite(D5, 0);
+  } else if (100-out > 90) {
+    digitalWrite(D5, 1);
+  }
+  else {
+    digitalWrite(D5, 1);
+    delay(200);
+    digitalWrite(D5, 0);
+    delay(200);
+  }
 
 
-  Serial.println(String(out) + " | " + String(distance));
+  Serial.println(String(100-out) + " | " + String(distance));
   senW("Water Level", 100 - out);
 
 }
