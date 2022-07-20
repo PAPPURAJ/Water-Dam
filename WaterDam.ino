@@ -1,7 +1,6 @@
+
 #include "FirebaseESP8266.h"
 #include <ESP8266WiFi.h>
-
-
 
 #define FIREBASE_HOST "water-dam-default-rtdb.firebaseio.com"  //Database link
 #define FIREBASE_AUTH "fVZnbBvbQ5oBcTYuVm2HWAn3onEsDUK3cTqkh2IN"  //Database secrate
@@ -56,9 +55,6 @@ void initFire() {
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
   Firebase.reconnectWiFi(true);
 
-  Serial.begin(9600);
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
 }
 
 
@@ -80,25 +76,21 @@ void setup() {
   Serial.begin(9600);
   initFire();
 
-
-
 }
 
 
 
 void pinSet() {
-  pinMode(D1, OUTPUT);
-  pinMode(D5, OUTPUT);
-  pinMode(D6, OUTPUT);
+  pinMode(D5, OUTPUT); //LED
 
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
 }
 
 
 
 
 void loop() {
-
-
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
@@ -112,8 +104,9 @@ void loop() {
   else if (out > 100)
     out = 100;
 
+  out=100-out;
 
-  if (100-out < 20) {
+  if (out < 20) {
     digitalWrite(D5, 1);
     delay(200);
     digitalWrite(D5, 0);
@@ -121,7 +114,7 @@ void loop() {
     digitalWrite(D5, 1);
     delay(200);
     digitalWrite(D5, 0);
-  } else if (100-out > 90) {
+  } else if (out > 90) {
     digitalWrite(D5, 1);
   }
   else {
@@ -132,7 +125,7 @@ void loop() {
   }
 
 
-  Serial.println(String(100-out) + " | " + String(distance));
-  senW("Water Level", 100 - out);
+  Serial.println(String(out) + " | " + String(distance));
+  senW("Water Level", out);
 
 }
